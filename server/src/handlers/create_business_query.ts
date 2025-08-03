@@ -1,15 +1,23 @@
 
+import { db } from '../db';
+import { businessQueriesTable } from '../db/schema';
 import { type CreateBusinessQueryInput, type BusinessQuery } from '../schema';
 
-export async function createBusinessQuery(input: CreateBusinessQueryInput): Promise<BusinessQuery> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new business query for diagnostic purposes,
-    // storing the specific business challenge and target function for GenAI solution mapping.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+export const createBusinessQuery = async (input: CreateBusinessQueryInput): Promise<BusinessQuery> => {
+  try {
+    // Insert business query record
+    const result = await db.insert(businessQueriesTable)
+      .values({
         assessment_id: input.assessment_id,
         query_text: input.query_text,
-        target_function: input.target_function,
-        created_at: new Date()
-    } as BusinessQuery);
-}
+        target_function: input.target_function
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Business query creation failed:', error);
+    throw error;
+  }
+};
